@@ -260,7 +260,7 @@ func ReadKubeconfigFromByte(config []byte) (*clientcmdapi.Config, error) {
 func ReadKubeconfigFromClient(cli client.Client) (*clientcmdapi.Config, error) {
 	secret := &corev1.Secret{}
 	if err := cli.Get(
-		context.TODO(),
+		context.Background(),
 		client.ObjectKey{
 			Namespace: constants.KubeconfigSecretNamespace,
 			Name:      constants.KubeconfigSecretName,

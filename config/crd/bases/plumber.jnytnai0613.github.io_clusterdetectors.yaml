@@ -1,0 +1,85 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.11.3
+  creationTimestamp: null
+  name: clusterdetectors.plumber.jnytnai0613.github.io
+spec:
+  group: plumber.jnytnai0613.github.io
+  names:
+    kind: ClusterDetector
+    listKind: ClusterDetectorList
+    plural: clusterdetectors
+    shortNames:
+    - cd
+    singular: clusterdetector
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.context
+      name: CONTEXT
+      type: string
+    - jsonPath: .spec.cluster
+      name: CLUSTER
+      type: string
+    - jsonPath: .spec.user
+      name: USER
+      type: string
+    - jsonPath: .status.clusterstatus
+      name: CLUSTERSTATUS
+      type: string
+    - jsonPath: .status.reason
+      name: REASON
+      priority: 1
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: AGE
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: ClusterDetector is the Schema for the clusterdetectors API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ClusterDetectorSpec defines the desired state of ClusterDetector
+            properties:
+              cluster:
+                type: string
+              context:
+                description: The kubeconfig file context,cluster,user
+                type: string
+              user:
+                type: string
+            type: object
+          status:
+            description: ClusterDetectorStatus defines the observed state of ClusterDetector
+            properties:
+              clusterstatus:
+                description: If communication to the remote Kubernetes cluster is
+                  possible, Running is set; if not, Unknown is set.
+                type: string
+              reason:
+                description: An error message is output when communication with a
+                  remote Kubernetes cluster is not possible. Output only when the
+                  wide option of the Kubectl get command is given.
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

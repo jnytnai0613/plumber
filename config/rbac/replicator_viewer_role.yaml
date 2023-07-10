@@ -1,0 +1,27 @@
+# permissions for end users to view replicators.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: replicator-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: plumber
+    app.kubernetes.io/part-of: plumber
+    app.kubernetes.io/managed-by: kustomize
+  name: replicator-viewer-role
+rules:
+- apiGroups:
+  - plumber.jnytnai0613.github.io
+  resources:
+  - replicators
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - plumber.jnytnai0613.github.io
+  resources:
+  - replicators/status
+  verbs:
+  - get

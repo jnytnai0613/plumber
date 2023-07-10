@@ -1,0 +1,27 @@
+# permissions for end users to view clusterdetectors.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/name: clusterrole
+    app.kubernetes.io/instance: clusterdetector-viewer-role
+    app.kubernetes.io/component: rbac
+    app.kubernetes.io/created-by: plumber
+    app.kubernetes.io/part-of: plumber
+    app.kubernetes.io/managed-by: kustomize
+  name: clusterdetector-viewer-role
+rules:
+- apiGroups:
+  - plumber.jnytnai0613.github.io
+  resources:
+  - clusterdetectors
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - plumber.jnytnai0613.github.io
+  resources:
+  - clusterdetectors/status
+  verbs:
+  - get

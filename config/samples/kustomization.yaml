@@ -1,0 +1,5 @@
+## Append samples of your project ##
+resources:
+- plumber_v1_clusterdetector.yaml
+- plumber_v1_replicator.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

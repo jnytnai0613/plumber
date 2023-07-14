@@ -327,6 +327,7 @@ make docker-build docker-push
 export IMG=<some-registry>/plumber:tag
 make deploy
 ```
+Please refer to docs/plumberctl_usase.md for plumberctl CLI usage.
 
 3. Install Instances of Custom Resources:
 ```sh

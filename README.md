@@ -9,8 +9,8 @@ https://github.com/jnytnai0613/plumber/assets/31709999/10453fc6-eebf-49a5-9507-b
 Next, Architecture is explained.
 ![Architecture Diagram](docs/ArchitectureDiagram.png)
 1. When plumber-controller-manager is started, ClusterDetector Controller creates a Client based on the authentication information of ServiceAccount. At this time, kubeconfig information is generated from the Client and a Secret is created.In addition, the PrimaryCluster is also registered with ClusterDetector Custom Resource.<br>
-2. plumberctl CLI is also implemented. 
-kubeconfig information of Secondary Cluster specified by plumberctl CLI is extracted from the kubeconfig file of the terminal to be executed and added to Secret.
+2. [plumberctl](/docs/plumberctl.md) CLI is also implemented. 
+kubeconfig information of Secondary Cluster specified by [plumberctl](/docs/plumberctl.md) CLI is extracted from the kubeconfig file of the terminal to be executed and added to Secret.
 3. The ClusterDetector Controller monitors the Secret.
 Whenever there is an update to the Secret, it is read in real-time and the ClusterDetector Custom Resource is also updated to add or remove Secondary Clusters.
 4. The Plumber Custom Resource contains the namespace name to be replicated, the Secondary Cluster name, and the resource definition.
@@ -327,7 +327,7 @@ make docker-build docker-push
 export IMG=<some-registry>/plumber:tag
 make deploy
 ```
-Please refer to docs/plumberctl_usase.md for plumberctl CLI usage.
+Once the Controller is deployed, the plumberctl command is available to add or remove Secondary Clusters and display Cluster registration state.Please refer to [docs/plumberctl.md](/docs/plumberctl.md) for plumberctl CLI usage.
 
 3. Install Instances of Custom Resources:
 ```sh

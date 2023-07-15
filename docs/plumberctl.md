@@ -4,7 +4,7 @@ The "plumberctl" is a CLI for linking ClusterDetector Controller.
  Read the kubeconfig file in the plumberctl execution terminal and connect to the Kuberentes Cluster where the Controller is deployed to register or delete clusters and display the federate state of the current cluster.The registration status of Kubernetes Cluster is monitored by ClusterDetector Controller and is reflected in Custom Resource in real time.
 ## Activation
 `Note： Before activating, Controller must be deployed.`  
-The kubeconfig file of the plumberctl execution terminal is recorded in the "~/.plumber/toml" file upon activation.
+The kubeconfig file of the plumberctl execution terminal is recorded in the "~/.plumber/config.toml" file upon activation.
 ```
 $ plumberctl activate --path <Path of kubeconfig file>　--activate-context <Kubernetes Cluster context in which the plumber controller is deployed>
 ```

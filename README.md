@@ -13,8 +13,8 @@ Next, Architecture is explained.
 kubeconfig information of Secondary Cluster specified by [plumberctl](/docs/plumberctl.md) CLI is extracted from the kubeconfig file of the terminal to be executed and added to Secret.
 3. The ClusterDetector Controller monitors the Secret.
 Whenever there is an update to the Secret, it is read in real-time and the ClusterDetector Custom Resource is also updated to add or remove Secondary Clusters.
-4. The Plumber Custom Resource contains the namespace name to be replicated, the Secondary Cluster name, and the resource definition.
-When a Plumber Custom Resource is deployed, Plumber Controller reads the .Spec field and creates the namespace and the resource to be replicated in the Primary Cluster.
+4. The Replicator Custom Resource contains the namespace name to be replicated, the Secondary Cluster name, and the resource definition.
+When a Replicator Custom Resource is deployed, Replicator Controller reads the .Spec field and creates the namespace and the resource to be replicated in the Primary Cluster.
 5. Then, create a namespace and resources for the Secondary Cluster as well.
 
 ## Road Map

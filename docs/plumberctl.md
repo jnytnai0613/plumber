@@ -25,7 +25,7 @@ path = '/home/user/.kube/config'
 ## Command Usage
 ### add
 Merge the information of the target Kubernetes Cluster to the kubeconfig information in the config Secret of the kubeconfig Namespace of the Kubernetes Cluster specified in activate.  
-When you add a target Kubernetes Cluster, a ClusterDetector resource is automatically created with the name in the form "<Cluster name >. <User name>" format will automatically create a ClusterDetector resource.  
+When you add a target Kubernetes Cluster, a ClusterDetector resource is automatically created with the name in the form \<Cluster name\>. \<User name\> format will automatically create a ClusterDetector resource.  
 .Metadata.Name must be a lowercase RFC 1123 subdomain must consist of lower case alphanumeric characters, '-' or '.', and must start and end with an alphanumeric character (e.g. 'example.com', regex used for validation is [a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*'). Therefore, the Cluster and User names must be RFC 1123 compliant.
 
 ```

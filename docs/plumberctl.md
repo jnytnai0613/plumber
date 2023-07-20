@@ -6,8 +6,10 @@ Read the kubeconfig file in the plumberctl execution terminal and connect to the
 Build and install with the following command.  
 We will endeavor to make automatic releases in the future.
 ```
-$ cd cmd/plumberctl
-$ go build -o plumberctl
+$ export VERSION=<version>
+$ export RELEASE=<release filename>
+$ wget https://github.com/jnytnai0613/plumber/releases/download/$VERSION/$RELEASE
+$ tar xvf $RELEASE; cd <Extraction Folder>; sudo mv plumberctl /usr/local/bin/
 ```
 ## Activation
 `Note： Before activating, Controller must be deployed.`  

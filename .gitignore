@@ -10,6 +10,7 @@ bin
 testbin/*
 cmd/plumberctl/config
 cmd/plumberctl/plumberctl
+demo.*
 Dockerfile.cross
 
 # Test binary, build with `go test -c`
@@ -27,3 +28,5 @@ Dockerfile.cross
 *.swp
 *.swo
 *~
+
+dist/

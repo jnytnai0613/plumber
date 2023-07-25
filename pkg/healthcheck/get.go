@@ -45,7 +45,7 @@ func HealthChecks(target clientcmdapi.Cluster) error {
 	u := fmt.Sprintf("%s%s", target.Server, "/livez")
 	resp, err := client.Get(u)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get response from %s: %w", u, err)
 	}
 	defer resp.Body.Close()
 

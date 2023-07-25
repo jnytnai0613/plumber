@@ -76,10 +76,6 @@ func CreateSecondaryClientsets(
 		return nil, fmt.Errorf("failed to write kubeconfig file: %w", err)
 	}
 
-	// Specify the path of the kubeconfig file to be loaded in clientcmd.ClientConfigLoadingRules.
-	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-	loadingRules.ExplicitPath = configPath
-
 	// Generate as many client sets as the number of contexts (remote Kubernetes clusters) read from kubeconfig.
 	clientsets := make(map[string]*kubernetes.Clientset)
 	for k, v := range cmdConfig.Contexts {
@@ -87,19 +83,12 @@ func CreateSecondaryClientsets(
 			if fmt.Sprintf("%s.%s", v.Cluster, v.AuthInfo) != secondaryCluster {
 				continue
 			}
-			overrides := clientcmd.ConfigOverrides{
-				CurrentContext: k,
-			}
-			config := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, &overrides)
-			clientConfig, err := config.ClientConfig()
+
+			cs, err := CreateClientSetFromContext(configPath, k)
 			if err != nil {
-				return nil, fmt.Errorf("failed to generate client config: %w", err)
+				return nil, fmt.Errorf("failed to create clientset: %w", err)
 			}
 
-			cs, err := kubernetes.NewForConfig(clientConfig)
-			if err != nil {
-				return nil, fmt.Errorf("failed to generate clientset: %w", err)
-			}
 			clientsets[fmt.Sprintf("%s.%s", v.Cluster, v.AuthInfo)] = cs
 		}
 	}
@@ -112,7 +101,7 @@ func CreateLocalClient(log logr.Logger, scheme runtime.Scheme) (client.Client, *
 	clientConfig := ctrl.GetConfigOrDie()
 	kubeClient, err := client.New(clientConfig, client.Options{Scheme: &scheme})
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("failed to create client: %w", err)
 	}
 
 	return kubeClient, clientConfig, nil
@@ -122,14 +111,14 @@ func CreateLocalClient(log logr.Logger, scheme runtime.Scheme) (client.Client, *
 func CreateClientSetFromRestConfig(config *rest.Config) (*kubernetes.Clientset, error) {
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create clientset: %w", err)
 	}
 
 	return clientset, nil
 }
 
 // Create a clientset for the secondary cluster.
-func CreateClientSetFromCurrentContext(configPath string, currContext string) (*kubernetes.Clientset, error) {
+func CreateClientSetFromContext(configPath string, currContext string) (*kubernetes.Clientset, error) {
 	// Specify the path of the kubeconfig file to be loaded in clientcmd.ClientConfigLoadingRules.
 	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
 	loadingRules.ExplicitPath = configPath
@@ -141,12 +130,12 @@ func CreateClientSetFromCurrentContext(configPath string, currContext string) (*
 	config := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, &overrides)
 	clientConfig, err := config.ClientConfig()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create client config: %w", err)
 	}
 
 	clientset, err := kubernetes.NewForConfig(clientConfig)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create clientset: %w", err)
 	}
 
 	return clientset, nil

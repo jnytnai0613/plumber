@@ -40,7 +40,7 @@ func CreatePrimaryClientsets() (map[string]*kubernetes.Clientset, error) {
 	clientConfig := ctrl.GetConfigOrDie()
 	cs, err := kubernetes.NewForConfig(clientConfig)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create clientset: %w", err)
 	}
 
 	clientsets := make(map[string]*kubernetes.Clientset)

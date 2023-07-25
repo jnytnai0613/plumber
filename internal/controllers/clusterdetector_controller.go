@@ -52,7 +52,7 @@ type ClusterDetectorReconciler struct {
 func RemoveClusterDetector(localClient client.Client, log logr.Logger) error {
 	config, err := kubeconfig.ReadKubeconfigFromClient(localClient)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read kubeconfig: %w", err)
 	}
 
 	ctx := context.Background()
@@ -63,7 +63,7 @@ func RemoveClusterDetector(localClient client.Client, log logr.Logger) error {
 		&currentClusterDetectorList,
 		client.InNamespace(constants.Namespace),
 	); err != nil {
-		return err
+		return fmt.Errorf("failed to get ClusterDetectorList: %w", err)
 	}
 
 	for _, clusterDetector := range currentClusterDetectorList.Items {
@@ -76,7 +76,7 @@ func RemoveClusterDetector(localClient client.Client, log logr.Logger) error {
 		}
 		if !flag {
 			if err := localClient.Delete(ctx, &clusterDetector); err != nil {
-				return err
+				return fmt.Errorf("failed to delete ClusterDetector: %w", err)
 			}
 			log.Info(fmt.Sprintf("[ClusterDetector: %s] Deleted.", clusterDetector.GetName()))
 		}
@@ -89,7 +89,7 @@ func RemoveClusterDetector(localClient client.Client, log logr.Logger) error {
 func SetupClusterDetector(localClient client.Client, log logr.Logger) error {
 	config, err := kubeconfig.ReadKubeconfigFromClient(localClient)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read kubeconfig: %w", err)
 	}
 
 	ctx := context.Background()
@@ -127,7 +127,7 @@ func SetupClusterDetector(localClient client.Client, log logr.Logger) error {
 		}); op != controllerutil.OperationResultNone {
 			log.Info(fmt.Sprintf("[ClusterDetector: %s] %s", clusterDetector.GetName(), op))
 		} else if err != nil {
-			return err
+			return fmt.Errorf("failed to create or update ClusterDetector: %w", err)
 		}
 
 		/////////////////////////////
@@ -147,7 +147,7 @@ func SetupClusterDetector(localClient client.Client, log logr.Logger) error {
 			// If the resource does not exist, create it.
 			// Therefore, Not Found errors are ignored.
 			if !errors.IsNotFound(err) {
-				return err
+				return fmt.Errorf("failed to get ClusterDetector: %w", err)
 			}
 		}
 		currentClusterStatus = clusterDetector.Status.ClusterStatus
@@ -163,7 +163,7 @@ func SetupClusterDetector(localClient client.Client, log logr.Logger) error {
 		}
 		clusterDetector.Status.ClusterStatus = nextClusterStatus
 		if err := localClient.Status().Update(ctx, clusterDetector); err != nil {
-			return err
+			return fmt.Errorf("failed to update ClusterDetector status: %w", err)
 		}
 
 		if currentClusterStatus != nextClusterStatus {

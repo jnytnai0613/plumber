@@ -60,7 +60,7 @@ func ApplyNamespacedSecret(
 			Force:        true,
 		},
 	); err != nil {
-		return err
+		return fmt.Errorf("failed to apply namespace: %w", err)
 	}
 
 	secretApplyConfig := corev1apply.Secret(
@@ -78,7 +78,7 @@ func ApplyNamespacedSecret(
 			Force:        true,
 		},
 	); err != nil {
-		return err
+		return fmt.Errorf("failed to apply secret: %w", err)
 	}
 
 	return nil
@@ -94,11 +94,11 @@ func GetPathAndCluster() (Config, error) {
 	viper.SetConfigName(constants.KubeconfigSecretName)
 	viper.SetConfigType("toml")
 	if err := viper.ReadInConfig(); err != nil {
-		return config, err
+		return config, fmt.Errorf("failed to read config file: %w", err)
 	}
 
 	if err := viper.Unmarshal(&config); err != nil {
-		return config, err
+		return config, fmt.Errorf("failed to unmarshal config file: %w", err)
 	}
 
 	return config, nil
@@ -115,20 +115,20 @@ func GenerateConfigFile(path string, cluster string) error {
 	// Writes the name of the specified configuration file and the context to which it is connected.
 	fullpath, err := filepath.Abs(path)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get absolute path: %w", err)
 	}
 	viper.Set("path", fullpath)
 	viper.Set("cluster", cluster)
 	if err := os.Mkdir(
 		fmt.Sprintf("%s/%s", os.Getenv("HOME"), constants.ActivateDir),
 		os.ModePerm); err != nil {
-		return err
+		return fmt.Errorf("failed to create directory: %w", err)
 	}
 	activateFile := filepath.Join(
 		fmt.Sprintf("%s/%s", os.Getenv("HOME"), constants.ActivateDir),
 		fmt.Sprintf("%s.toml", file))
 	if err := viper.WriteConfigAs(activateFile); err != nil {
-		return err
+		return fmt.Errorf("failed to write config file: %w", err)
 	}
 
 	fmt.Println(fmt.Sprintf("activate file was written out to %s", activateFile))
@@ -146,7 +146,7 @@ func GeneratePrimaryConfig(clientset *kubernetes.Clientset, restConfig *rest.Con
 	)
 	if err != nil {
 		if !errors.IsNotFound(err) {
-			return nil, err
+			return nil, fmt.Errorf("failed to get secret: %w", err)
 		}
 	}
 
@@ -186,7 +186,7 @@ func GeneratePrimaryConfig(clientset *kubernetes.Clientset, restConfig *rest.Con
 
 	primaryConfig, err := clientcmd.Write(*cmdConfig)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to write kubeconfig: %w", err)
 	}
 
 	return primaryConfig, nil
@@ -196,7 +196,7 @@ func GeneratePrimaryConfig(clientset *kubernetes.Clientset, restConfig *rest.Con
 func ExtractKubeconfig(path string, targetContext string) ([]byte, error) {
 	config, err := ReadKubeconfigFromFile(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read kubeconfig: %w", err)
 	}
 
 	var extractKubeconfig []byte
@@ -239,7 +239,7 @@ func ExtractKubeconfig(path string, targetContext string) ([]byte, error) {
 
 			extractKubeconfig, err := clientcmd.Write(*cmdConfig)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to write kubeconfig: %w", err)
 			}
 
 			return extractKubeconfig, nil
@@ -253,7 +253,7 @@ func ExtractKubeconfig(path string, targetContext string) ([]byte, error) {
 func ReadKubeconfigFromFile(path string) (*clientcmdapi.Config, error) {
 	kubeconfigFile, err := clientcmd.LoadFromFile(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load kubeconfig: %w", err)
 	}
 
 	return kubeconfigFile, nil
@@ -263,7 +263,7 @@ func ReadKubeconfigFromFile(path string) (*clientcmdapi.Config, error) {
 func ReadKubeconfigFromByte(config []byte) (*clientcmdapi.Config, error) {
 	kubeconfigFile, err := clientcmd.Load(config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load kubeconfig: %w", err)
 	}
 
 	return kubeconfigFile, nil
@@ -282,14 +282,14 @@ func ReadKubeconfigFromClient(cli client.Client) (*clientcmdapi.Config, error) {
 		},
 		secret,
 	); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get secret: %w", err)
 	}
 
 	m := secret.Data
 	k := m[constants.KubeconfigSecretKey]
 	c, err := clientcmd.Load(k)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load kubeconfig: %w", err)
 	}
 
 	return c, nil
@@ -310,7 +310,7 @@ func MargeKubeconfig(source clientcmdapi.Config, target clientcmdapi.Config) ([]
 
 	result, err := clientcmd.Write(source)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to write kubeconfig: %w", err)
 	}
 
 	return result, nil
@@ -321,7 +321,7 @@ func RemoveContext(config *corev1.Secret, removeTarget string) ([]byte, error) {
 	k := m[constants.KubeconfigSecretKey]
 	c, err := clientcmd.Load(k)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load kubeconfig: %w", err)
 	}
 
 	for k, v := range c.Contexts {
@@ -336,7 +336,7 @@ func RemoveContext(config *corev1.Secret, removeTarget string) ([]byte, error) {
 
 	result, err := clientcmd.Write(*c)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to write kubeconfig: %w", err)
 	}
 
 	return result, nil
@@ -347,7 +347,7 @@ func ViewContext(config *corev1.Secret) ([][]string, error) {
 	k := m[constants.KubeconfigSecretKey]
 	c, err := clientcmd.Load(k)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load kubeconfig: %w", err)
 	}
 
 	data := [][]string{}

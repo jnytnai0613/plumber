@@ -21,6 +21,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"fmt"
 	"math/big"
 	"time"
 
@@ -37,7 +38,7 @@ func CreateCaCrt() ([]byte, []byte, error) {
 
 	privateCaKey, err = rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("failed to generate private key: %w", err)
 	}
 	publicCaKey := privateCaKey.Public()
 
@@ -68,7 +69,7 @@ func CreateCaCrt() ([]byte, []byte, error) {
 		privateCaKey,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("failed to create certificate: %w", err)
 	}
 
 	//Convert to ASN.1 PEM encoded form
@@ -94,7 +95,7 @@ func CreateCaCrt() ([]byte, []byte, error) {
 func CreateSvrCrt(replicator replicatev1.Replicator) ([]byte, []byte, error) {
 	privateSvrKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("failed to generate private key: %w", err)
 	}
 	publicSvrKey := privateSvrKey.Public()
 
@@ -124,7 +125,7 @@ func CreateSvrCrt(replicator replicatev1.Replicator) ([]byte, []byte, error) {
 		privateCaKey,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("failed to create certificate: %w", err)
 	}
 
 	//Convert to ASN.1 PEM encoded form
@@ -150,7 +151,7 @@ func CreateSvrCrt(replicator replicatev1.Replicator) ([]byte, []byte, error) {
 func CreateClientCrt() ([]byte, []byte, error) {
 	privateClientKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("failed to generate private key: %w", err)
 	}
 	publicClientKey := privateClientKey.Public()
 
@@ -179,7 +180,7 @@ func CreateClientCrt() ([]byte, []byte, error) {
 		privateCaKey,
 	)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, fmt.Errorf("failed to create certificate: %w", err)
 	}
 
 	// Convert to ASN.1 PEM encoded form

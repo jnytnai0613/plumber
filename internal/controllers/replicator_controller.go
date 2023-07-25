@@ -87,7 +87,7 @@ func createOwnerReferences(
 	gvk, err := apiutil.GVKForObject(&replicator, scheme)
 	if err != nil {
 		log.Error(err, "Unable get GVK")
-		return err
+		return fmt.Errorf("unable to get GVK: %w", err)
 	}
 
 	owner = metav1apply.OwnerReference().
@@ -128,12 +128,12 @@ func (r *ReplicatorReconciler) applyConfigMap(
 		// If the resource does not exist, create it.
 		// Therefore, Not Found errors are ignored.
 		if !errors.IsNotFound(err) {
-			return err
+			return fmt.Errorf("failed to get ConfigMap: %w", err)
 		}
 	}
 	currConfigMapApplyConfig, err := corev1apply.ExtractConfigMap(configMap, fieldMgr)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to extract ConfigMap: %w", err)
 	}
 
 	kind := *nextConfigMapApplyConfig.Kind
@@ -147,7 +147,7 @@ func (r *ReplicatorReconciler) applyConfigMap(
 	}
 	if equality.Semantic.DeepEqual(currConfigMapApplyConfig, nextConfigMapApplyConfig) {
 		syncStatus = append(syncStatus, s)
-		return nil
+		return fmt.Errorf("ConfigMap is not different")
 	}
 
 	applied, err := configMapClient.Apply(
@@ -164,7 +164,7 @@ func (r *ReplicatorReconciler) applyConfigMap(
 		syncStatus = append(syncStatus, s)
 
 		log.Error(err, "unable to apply")
-		return err
+		return fmt.Errorf("failed to apply ConfigMap: %w", err)
 	}
 
 	syncStatus = append(syncStatus, s)
@@ -238,12 +238,12 @@ func (r *ReplicatorReconciler) applyDeployment(
 		// If the resource does not exist, create it.
 		// Therefore, Not Found errors are ignored.
 		if !errors.IsNotFound(err) {
-			return err
+			return fmt.Errorf("failed to get Deployment: %w", err)
 		}
 	}
 	currDeploymentMapApplyConfig, err := appsv1apply.ExtractDeployment(deployment, fieldMgr)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to extract Deployment: %w", err)
 	}
 
 	kind := *nextDeploymentApplyConfig.Kind
@@ -257,7 +257,7 @@ func (r *ReplicatorReconciler) applyDeployment(
 	}
 	if equality.Semantic.DeepEqual(currDeploymentMapApplyConfig, nextDeploymentApplyConfig) {
 		syncStatus = append(syncStatus, s)
-		return nil
+		return fmt.Errorf("Deployment is not different")
 	}
 
 	applied, err := deploymentClient.Apply(
@@ -274,7 +274,7 @@ func (r *ReplicatorReconciler) applyDeployment(
 		syncStatus = append(syncStatus, s)
 
 		log.Error(err, "unable to apply")
-		return err
+		return fmt.Errorf("failed to apply Deployment: %w", err)
 	}
 
 	syncStatus = append(syncStatus, s)
@@ -313,12 +313,12 @@ func (r *ReplicatorReconciler) applyService(
 		// If the resource does not exist, create it.
 		// Therefore, Not Found errors are ignored.
 		if !errors.IsNotFound(err) {
-			return err
+			return fmt.Errorf("failed to get Service: %w", err)
 		}
 	}
 	currServiceApplyConfig, err := corev1apply.ExtractService(service, fieldMgr)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to extract Service: %w", err)
 	}
 
 	kind := *nextServiceApplyConfig.Kind
@@ -349,7 +349,7 @@ func (r *ReplicatorReconciler) applyService(
 		syncStatus = append(syncStatus, s)
 
 		log.Error(err, "unable to apply")
-		return err
+		return fmt.Errorf("failed to apply Service: %w", err)
 	}
 
 	syncStatus = append(syncStatus, s)
@@ -388,7 +388,7 @@ func (r *ReplicatorReconciler) applyIngress(
 		// If the resource does not exist, create it.
 		// Therefore, Not Found errors are ignored.
 		if !errors.IsNotFound(err) {
-			return err
+			return fmt.Errorf("failed to get Ingress: %w", err)
 		}
 	}
 
@@ -400,7 +400,7 @@ func (r *ReplicatorReconciler) applyIngress(
 				metav1.ListOptions{},
 			)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to list Secret: %w", err)
 			}
 
 			ih := ingress.Spec.TLS[0].Hosts[0]
@@ -413,7 +413,7 @@ func (r *ReplicatorReconciler) applyIngress(
 						secret.GetName(),
 						metav1.DeleteOptions{},
 					); err != nil {
-						return err
+						return fmt.Errorf("failed to delete Secret: %w", err)
 					}
 					log.Info(fmt.Sprintf("delete Secret resource: %s", secret.GetName()))
 				}
@@ -425,7 +425,7 @@ func (r *ReplicatorReconciler) applyIngress(
 			constants.FieldManager,
 		); err != nil {
 			log.Error(err, "Unable create Ingress Secret")
-			return err
+			return fmt.Errorf("unable to create Ingress Secret: %w", err)
 		}
 
 		if err := r.applyClientSecret(
@@ -433,7 +433,7 @@ func (r *ReplicatorReconciler) applyIngress(
 			constants.FieldManager,
 		); err != nil {
 			log.Error(err, "Unable create Client Secret")
-			return err
+			return fmt.Errorf("unable to create Client Secret: %w", err)
 		}
 
 		nextIngressApplyConfig.
@@ -459,7 +459,7 @@ func (r *ReplicatorReconciler) applyIngress(
 
 	currIngressApplyConfig, err := networkv1apply.ExtractIngress(ingress, fieldMgr)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to extract Ingress: %w", err)
 	}
 
 	kind := *nextIngressApplyConfig.Kind
@@ -490,7 +490,7 @@ func (r *ReplicatorReconciler) applyIngress(
 		syncStatus = append(syncStatus, s)
 
 		log.Error(err, "unable to apply")
-		return err
+		return fmt.Errorf("failed to apply Ingress: %w", err)
 	}
 
 	syncStatus = append(syncStatus, s)
@@ -518,7 +518,7 @@ func (r *ReplicatorReconciler) applyIngressSecret(
 		// If the resource does not exist, create it.
 		// Therefore, Not Found errors are ignored.
 		if !errors.IsNotFound(err) {
-			return err
+			return fmt.Errorf("failed to get Secret: %w", err)
 		}
 	}
 
@@ -529,13 +529,13 @@ func (r *ReplicatorReconciler) applyIngressSecret(
 	caCrt, _, err := pki.CreateCaCrt()
 	if err != nil {
 		log.Error(err, "Unable create CA Certificates")
-		return err
+		return fmt.Errorf("unable to create CA Certificates: %w", err)
 	}
 
 	svrCrt, svrKey, err := pki.CreateSvrCrt(applyRuntime.Replicator)
 	if err != nil {
 		log.Error(err, "Unable create Server Certificates")
-		return err
+		return fmt.Errorf("unable to create Server Certificates: %w", err)
 	}
 
 	secData := map[string][]byte{
@@ -577,7 +577,7 @@ func (r *ReplicatorReconciler) applyIngressSecret(
 		syncStatus = append(syncStatus, s)
 
 		log.Error(err, "unable to apply")
-		return err
+		return fmt.Errorf("failed to apply Secret: %w", err)
 	}
 
 	syncStatus = append(syncStatus, s)
@@ -605,7 +605,7 @@ func (r *ReplicatorReconciler) applyClientSecret(
 		// If the resource does not exist, create it.
 		// Therefore, Not Found errors are ignored.
 		if !errors.IsNotFound(err) {
-			return err
+			return fmt.Errorf("failed to get Secret: %w", err)
 		}
 	}
 
@@ -616,7 +616,7 @@ func (r *ReplicatorReconciler) applyClientSecret(
 	cliCrt, cliKey, err := pki.CreateClientCrt()
 	if err != nil {
 		log.Error(err, "Unable create Client Certificates")
-		return err
+		return fmt.Errorf("unable to create Client Certificates: %w", err)
 	}
 
 	secData := map[string][]byte{
@@ -643,7 +643,7 @@ func (r *ReplicatorReconciler) applyClientSecret(
 	)
 	if err != nil {
 		log.Error(err, "unable to apply")
-		return err
+		return fmt.Errorf("failed to apply Secret: %w", err)
 	}
 
 	log.Info(fmt.Sprintf("Nginx Client Certificates Secret Applied: [cluster] %s, [resource] %s", applyRuntime.Cluster, applied.GetName()))
@@ -724,8 +724,7 @@ func (r *ReplicatorReconciler) Replicate(
 		replicateRuntime.IsPrimary = true
 		replicateRuntime.Cluster = primaryClusterName
 		if err := r.applyResources(replicateRuntime); err != nil {
-			log.Error(err, fmt.Sprintf("Could not apply to Primary Cluster %s", primaryClusterName))
-			return err
+			return fmt.Errorf("failed to apply resources: %w", err)
 		}
 	}
 
@@ -742,8 +741,7 @@ func (r *ReplicatorReconciler) Replicate(
 	}
 	// If one of the clusters fails to replicate, it is considered a synchronization failure.
 	if applyFailed {
-		log.Error(err, "Could not sync on all clusters")
-		return err
+		return fmt.Errorf("Could not sync on all clusters")
 	}
 
 	return nil
@@ -772,12 +770,12 @@ func createNamespace(
 			// If the resource does not exist, create it.
 			// Therefore, Not Found errors are ignored.
 			if !errors.IsNotFound(err) {
-				return err
+				return fmt.Errorf("Could not get namespace %w", err)
 			}
 
 			created, err := namespaceClient.Create(ctx, ns, metav1.CreateOptions{})
 			if err != nil {
-				return err
+				return fmt.Errorf("Could not create namespace %w", err)
 			}
 
 			log.Info(fmt.Sprintf("Namespace creation: [cluster] %s, [resource] %s", cluster, created.GetName()))

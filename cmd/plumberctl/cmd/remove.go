@@ -28,7 +28,7 @@ var removeCmd = &cobra.Command{
 			return err
 		}
 
-		clientset, err := client.CreateClientSetFromCurrentContext(config.Path, config.Cluster)
+		clientset, err := client.CreateClientSetFromContext(config.Path, config.Cluster)
 		if err != nil {
 			return err
 		}

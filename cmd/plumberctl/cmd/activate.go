@@ -44,7 +44,7 @@ var activateCmd = &cobra.Command{
 	Long: `Perform a connection test to the cluster where the Operator resides
              and write the connection information to a file.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		clientset, err := client.CreateClientSetFromCurrentContext(path, activateContext)
+		clientset, err := client.CreateClientSetFromContext(path, activateContext)
 		if err != nil {
 			return err
 		}

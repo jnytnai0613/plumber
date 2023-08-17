@@ -147,7 +147,7 @@ func (r *ReplicatorReconciler) applyConfigMap(
 	}
 	if equality.Semantic.DeepEqual(currConfigMapApplyConfig, nextConfigMapApplyConfig) {
 		syncStatus = append(syncStatus, s)
-		return fmt.Errorf("ConfigMap is not different")
+		return nil
 	}
 
 	applied, err := configMapClient.Apply(
@@ -257,7 +257,7 @@ func (r *ReplicatorReconciler) applyDeployment(
 	}
 	if equality.Semantic.DeepEqual(currDeploymentMapApplyConfig, nextDeploymentApplyConfig) {
 		syncStatus = append(syncStatus, s)
-		return fmt.Errorf("Deployment is not different")
+		return nil
 	}
 
 	applied, err := deploymentClient.Apply(
